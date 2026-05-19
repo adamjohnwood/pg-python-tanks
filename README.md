@@ -1,2 +1,2 @@
 # pg-python-tanks
-Tanks game made for uni project
+Tanks game made for uni project fr fr
