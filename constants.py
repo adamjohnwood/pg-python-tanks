@@ -1,7 +1,8 @@
 # Constants for the game
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
-FPS = 60
+FPS = 120
+BULLET_SPEED = 10
 
 # Colors
 WHITE = (255, 255, 255)
