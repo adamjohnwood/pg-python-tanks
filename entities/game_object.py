@@ -1,8 +1,9 @@
 import pygame
+import constants as CONST
 from abc import ABC, abstractmethod
 
 class Game_object(ABC):
-    def __init__(self, x: float = 0.0, y: float = 0.0, width: float = 50.0, height: float = 50.0, color: tuple = (255, 0, 0)):
+    def __init__(self, x: int = 0, y: int = 0, width: int = CONST.OBJECT_SIZE, height: int = CONST.OBJECT_SIZE, color: tuple = CONST.WHITE):
         self.x = x
         self.y = y
         self.width = width
