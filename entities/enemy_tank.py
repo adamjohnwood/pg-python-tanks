@@ -29,19 +29,6 @@ class Enemy_tank(Tank):
         self.hitbox.x += self.vector[0] * self.speed
         self.hitbox.y += self.vector[1] * self.speed
 
-        if self.hitbox.left < 0:
-            self.hitbox.left = 0
-            self.change_direction()
-        if self.hitbox.right > CONST.WINDOW_WIDTH:
-            self.hitbox.right = CONST.WINDOW_WIDTH
-            self.change_direction()
-        if self.hitbox.top < 0:
-            self.hitbox.top = 0
-            self.change_direction()
-        if self.hitbox.bottom > CONST.WINDOW_HEIGHT:
-            self.hitbox.bottom = CONST.WINDOW_HEIGHT
-            self.change_direction()
-
         if self.shoot_cooldown_timer <= 0 and self.fire_action:
             bullet = Bullet(self.hitbox.centerx, self.hitbox.centery, self.damage, CONST.BULLET_SPEED, self.vector, owner='enemy')
             self.fire_action(bullet)

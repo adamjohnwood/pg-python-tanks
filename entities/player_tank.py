@@ -30,16 +30,6 @@ class Player_tank(Tank):
             self.hitbox.x += self.speed
             self.vector = CONST.RIGHT
 
-        # Block going out of bounds
-        if self.hitbox.left < 0:
-            self.hitbox.left = 0
-        if self.hitbox.right > CONST.WINDOW_WIDTH:
-            self.hitbox.right = CONST.WINDOW_WIDTH
-        if self.hitbox.top < 0:
-            self.hitbox.top = 0
-        if self.hitbox.bottom > CONST.WINDOW_HEIGHT:
-            self.hitbox.bottom = CONST.WINDOW_HEIGHT
-
         # Shooting
         if keys[pygame.K_SPACE] and self.shoot_cooldown_timer <= 0:
             self.shoot_cooldown_timer = self.shoot_cooldown

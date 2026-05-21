@@ -1,13 +1,21 @@
 # Constants for the game
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 600
-FPS = 120
+GAME_TITLE = "PG Python Tanks"
+GAME_WIDTH = 840
+GAME_HEIGHT = 600
+HUD_WIDTH = 200
+WINDOW_WIDTH = GAME_WIDTH + HUD_WIDTH
+WINDOW_HEIGHT = GAME_HEIGHT
+FPS = 60
 
+# Sizes and speeds
 OBJECT_SIZE = 40
 TANK_SIZE = 40
 BULLET_SIZE = 5
 BULLET_SPEED = 10
 
+BRICK_HEALTH = 150
+
+# Directions
 UP = (0, -1)
 DOWN = (0, 1)
 LEFT = (-1, 0)
@@ -29,11 +37,8 @@ ICE_COLOR = (173, 216, 230)
 
 # Tank types:
 TANK_TYPES = {
-    "BasicTank":   {"speed": 3, "health": 100, "damage": 50,  "cooldown": int(0.5 * FPS),  "color": RED},
-    "FastTank":    {"speed": 5, "health": 50,  "damage": 25,  "cooldown": int(0.3 * FPS),  "color": YELLOW},
-    "ArmoredTank": {"speed": 2, "health": 200, "damage": 50,  "cooldown": int(0.8 * FPS),  "color": STEEL_COLOR},
-    "ShooterTank": {"speed": 3, "health": 100, "damage": 100, "cooldown": int(0.25 * FPS), "color": BLUE},
+    "BasicTank":   {"speed": 2, "health": 100, "damage": 50,  "cooldown": int(1.5 * FPS),  "color": RED},
+    "FastTank":    {"speed": 4, "health": 50,  "damage": 20,  "cooldown": int(0.8 * FPS),  "color": YELLOW},
+    "ArmoredTank": {"speed": 1, "health": 250, "damage": 10,  "cooldown": int(0.3 * FPS),  "color": STEEL_COLOR},
+    "ShooterTank": {"speed": 1, "health": 50, "damage": 100, "cooldown": int(2.5 * FPS), "color": BLUE},
 }
-
-BRICK_HEALTH = 150
-
