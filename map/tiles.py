@@ -12,6 +12,12 @@ class Tile(Game_object):
     def update(self):
         pass
 
+class Base(Tile):
+    def __init__(self, x: int, y: int):
+        super().__init__(x, y, CONST.BASE_COLOR)
+        self.destructible = True
+        self.health = CONST.BASE_HEALTH
+
 class BrickWall(Tile):
     def __init__(self, x: int, y: int):
         super().__init__(x, y, CONST.BRICK_COLOR)

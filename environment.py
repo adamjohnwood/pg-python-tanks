@@ -1,4 +1,5 @@
 import pygame
+import random
 
 #local imports
 import constants as CONST
@@ -7,18 +8,20 @@ from entities.tank import Tank
 from entities.player_tank import Player_tank
 from entities.enemy_tank import Enemy_tank
 from map.levels import ALL_LEVELS
-from map.tiles import BrickWall, SteelWall, Water, Bush, Ice
+from map.tiles import Base, BrickWall, SteelWall, Water, Bush, Ice
 
 TILES_CLASSES = {
     '#': BrickWall,
     '@': SteelWall,
     '~': Water,
     '*': Bush,
-    '-': Ice
+    '-': Ice,
+    'B': Base
 }
 
 class Environment:
     def __init__(self):
+        # Game initialization
         pygame.init()
         self.screen = pygame.display.set_mode((CONST.WINDOW_WIDTH, CONST.GAME_HEIGHT))
         pygame.display.set_caption("PG-PYTHON-TANKS")
@@ -27,11 +30,13 @@ class Environment:
         self.game_objects = []
 
         self.current_level = 1
-
-        self.load_level()
+        self.spawn_timer = 0
+        self.max_enemies_on_map = 0
 
         pygame.font.init()
         self.font = pygame.font.SysFont('Arial', 20, bold=True)
+
+        self.load_level()
 
     def run(self):
         while self.running:
@@ -49,8 +54,8 @@ class Environment:
     def check_collisions(self):
         bullets = [obj for obj in self.game_objects if isinstance(obj, Bullet)]
         tanks = [obj for obj in self.game_objects if isinstance(obj, Tank)]
-        impassable_tiles = [obj for obj in self.game_objects if isinstance(obj, (BrickWall, SteelWall, Water))]
-        solid_tiles = [obj for obj in self.game_objects if isinstance(obj, (BrickWall, SteelWall))]
+        impassable_tiles = [obj for obj in self.game_objects if isinstance(obj, (BrickWall, SteelWall, Water, Base))]
+        solid_tiles = [obj for obj in self.game_objects if isinstance(obj, (BrickWall, SteelWall, Base))]
 
         # Check tanks collisions
         for tank in tanks:
@@ -130,6 +135,10 @@ class Environment:
                         tile.health -= bullet.damage
                         if tile.health <= 0 and tile in self.game_objects:
                             self.game_objects.remove(tile)
+
+                            if isinstance(tile, Base):
+                                print("Base destroyed! GAME OVER!")
+                                self.running = False
                     break
 
             if bullet not in self.game_objects:
@@ -144,8 +153,20 @@ class Environment:
                         break
 
     def load_level(self):
+        # Clear existing game objects
+        self.game_objects.clear()
+
+        # Check if there are more levels to load
+        if self.current_level > len(ALL_LEVELS):
+            print("Congratulations! You've completed all levels!")
+            self.running = False
+            return
+
         level_data = ALL_LEVELS[self.current_level - 1]
-        for row_index, row in enumerate(level_data):
+
+        # Load new level
+        level_map = level_data['map']
+        for row_index, row in enumerate(level_map):
             for col_index, tile_char in enumerate(row):
                 if tile_char in TILES_CLASSES:
                     tile_class = TILES_CLASSES[tile_char]
@@ -154,17 +175,49 @@ class Environment:
                     tile = tile_class(x, y) # I didn't know that I can do this, it's pretty cool that you can take name and use it as a variable
                     self.game_objects.append(tile)
 
+        # Spawn player tank
+        player_spawn = level_data['player_spawn']
+        player = Player_tank(x=player_spawn[0] * CONST.OBJECT_SIZE, y=player_spawn[1] * CONST.OBJECT_SIZE, fire_action=self.game_objects.append)
+        self.game_objects.append(player)
+
+        # Get enemy spawn info
+        self.enemy_spawns = level_data['enemy_spawns']
+        self.enemies_pool = list(level_data['enemies'])
+        self.max_enemies_on_map = len(level_data['enemy_spawns'])
+        self.assault_dir = level_data['assault_direction']
+
+    def spawn_enemy(self):
+        # Check if we can spawn a new enemy
+        enemies_on_map = len([obj for obj in self.game_objects if isinstance(obj, Enemy_tank)])
+        enemies_to_spawn = len(self.enemies_pool)
+
+        if enemies_to_spawn > 0 and enemies_on_map < self.max_enemies_on_map:
+            if self.spawn_timer <= 0:
+                spawn_point = random.choice(self.enemy_spawns)
+                random_enemy_type = random.choice(self.enemies_pool)
+                self.enemies_pool.remove(random_enemy_type)
+
+                enemy = Enemy_tank(x=spawn_point[0] * CONST.OBJECT_SIZE, y=spawn_point[1] * CONST.OBJECT_SIZE, tank_type=random_enemy_type, fire_action=self.game_objects.append, assault_dir=self.assault_dir)
+                self.game_objects.append(enemy)
+                self.spawn_timer = CONST.FPS * 2 # Spawn rate is 1 tank per 2 seconds
+            else:
+                self.spawn_timer -= 1
+        elif enemies_to_spawn == 0 and enemies_on_map == 0:
+            self.current_level += 1
+            self.load_level()
+
     def update(self):
         for obj in self.game_objects[:]:
             obj.update()
+        self.spawn_enemy()
 
     def draw(self):
         self.screen.fill(CONST.BLACK)
         for obj in self.game_objects:
             obj.draw(self.screen)
-        self.draw_text()
-            
+        self.draw_text()  
         pygame.display.flip()
+
     def draw_text(self):
         hud_background = pygame.Rect(CONST.GAME_WIDTH, 0, CONST.HUD_WIDTH, CONST.WINDOW_HEIGHT)
         pygame.draw.rect(self.screen, CONST.STEEL_COLOR, hud_background)
@@ -172,6 +225,7 @@ class Environment:
         pygame.draw.line(self.screen, CONST.WHITE, (CONST.GAME_WIDTH, 0), (CONST.GAME_WIDTH, CONST.WINDOW_HEIGHT), 3)
 
         enemies_count = len([obj for obj in self.game_objects if isinstance(obj, Enemy_tank)])
+        enemies_count += len(self.enemies_pool)
         player = next((obj for obj in self.game_objects if isinstance(obj, Player_tank)), None)
 
         x_margin = CONST.GAME_WIDTH + 10
