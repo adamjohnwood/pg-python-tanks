@@ -26,8 +26,8 @@ LEVEL_1 = {
         ".........###.........",
         ".........#B#........."
     ],
-    "player_spawn": (11, 13),
-    "enemy_spawns": [(3, 0), (10, 0), (17, 0)],
+    "player_spawn": (10, 12),
+    "enemy_spawns": [(5, 1), (10, 1), (16, 1)],
     "enemies": ["BasicTank", "BasicTank", "BasicTank", "BasicTank", "FastTank"],
     "assault_direction": CONST.DOWN
 }
@@ -83,6 +83,6 @@ LEVEL_3 = {
     "assault_direction": CONST.LEFT
 }
 
-ALL_LEVELS = [LEVEL_1, LEVEL_2]
+ALL_LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3]
 
 ALL_LEVELS = [LEVEL_3]
