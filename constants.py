@@ -13,10 +13,12 @@ FPS = 60
 OBJECT_SIZE = 40
 TANK_SIZE = 40
 BULLET_SIZE = 5
+POWERUP_SIZE = 20
 BULLET_SPEED = 10
 
 BASE_HEALTH = 10
 BRICK_HEALTH = 150
+POWERUP_LIFETIME = int(10 * FPS)
 
 # Directions
 UP = (0, -1)
@@ -31,6 +33,8 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+CYAN = (0, 255, 255)
+MAGENTA = (255, 0, 255)
 
 BASE_COLOR = WHITE
 BRICK_COLOR = (139, 69, 19)
@@ -45,4 +49,11 @@ TANK_TYPES = {
     "FastTank":    {"speed": 4, "health": 50,  "damage": 20,  "cooldown": int(0.8 * FPS),  "color": YELLOW},
     "ArmoredTank": {"speed": 1, "health": 250, "damage": 50,  "cooldown": int(2.0 * FPS),  "color": STEEL_COLOR},
     "ShooterTank": {"speed": 1, "health": 50, "damage": 100, "cooldown": int(2.5 * FPS), "color": BLUE},
+}
+
+# Powerup types:
+POWERUP_TYPES = {
+    "heal":   {"color": GREEN,   "value": 50},
+    "shield": {"color": CYAN,    "value": int(5 * FPS)},
+    "bomb":   {"color": MAGENTA, "value": None}
 }

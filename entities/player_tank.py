@@ -6,10 +6,8 @@ from entities.tank import Tank
 from entities.bullet import Bullet
 
 class Player_tank(Tank):
-    def __init__(self, x: int = 0, y: int = 0, tank_type: str = 'BasicTank', fire_action=None):
+    def __init__(self, x: int = 0, y: int = 0, tank_type: str = 'player', fire_action=None):
         super().__init__(x, y, tank_type)
-        
-        self.image.fill(CONST.GREEN)
 
         self.fire_action = fire_action
 

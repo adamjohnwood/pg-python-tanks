@@ -9,7 +9,6 @@ from ai.enemy_ai import AI_PROFILES
 class Enemy_tank(Tank):
     def __init__(self, x: int, y: int, tank_type: str, fire_action, assault_dir):
         super().__init__(x, y, tank_type)
-        self.image.fill(CONST.RED)
         self.fire_action = fire_action
         self.ai_brain = AI_PROFILES.get(tank_type, AI_PROFILES['BasicTank'])
         self.assault_dir = assault_dir

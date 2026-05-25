@@ -7,8 +7,10 @@ from entities.bullet import Bullet
 from entities.tank import Tank
 from entities.player_tank import Player_tank
 from entities.enemy_tank import Enemy_tank
+from entities.powerups import PowerUp
 from map.levels import ALL_LEVELS
 from map.tiles import Base, BrickWall, SteelWall, Water, Bush, Ice
+from assets.assets import load_assets, IMAGES
 
 TILES_CLASSES = {
     '#': BrickWall,
@@ -26,6 +28,7 @@ class Environment:
         self.screen = pygame.display.set_mode((CONST.WINDOW_WIDTH, CONST.GAME_HEIGHT))
         pygame.display.set_caption("PG-PYTHON-TANKS")
         self.clock = pygame.time.Clock()
+        load_assets()
         self.running = True
         self.game_objects = []
 
@@ -56,6 +59,7 @@ class Environment:
         tanks = [obj for obj in self.game_objects if isinstance(obj, Tank)]
         impassable_tiles = [obj for obj in self.game_objects if isinstance(obj, (BrickWall, SteelWall, Water, Base))]
         solid_tiles = [obj for obj in self.game_objects if isinstance(obj, (BrickWall, SteelWall, Base))]
+        powerups = [obj for obj in self.game_objects if isinstance(obj, PowerUp)]
 
         # Check tanks collisions
         for tank in tanks:
@@ -91,6 +95,24 @@ class Environment:
                     isCollision = True
                     break
 
+            # With powerups
+            for powerup in powerups:
+                if powerup in self.game_objects and tank.hitbox.colliderect(powerup.hitbox):
+                    if isinstance(tank, Player_tank):
+                        bonus_value = CONST.POWERUP_TYPES[powerup.type]['value']
+                        if powerup.type == 'heal':
+                            tank.health = min(tank.health + bonus_value, 100)
+                        elif powerup.type == 'shield':
+                            tank.shield_timer = bonus_value
+                        elif powerup.type == 'bomb':
+                            enemies_to_destroy = [enemy for enemy in tanks if isinstance(enemy, Enemy_tank)]
+                            for enemy in enemies_to_destroy:
+                                if enemy in self.game_objects:
+                                    self.game_objects.remove(enemy)
+
+                    self.game_objects.remove(powerup)
+                    break
+
             # Make enemey tanks change direction on collision
             if isCollision and isinstance(tank, Enemy_tank):
                 tank.change_direction()
@@ -112,12 +134,19 @@ class Environment:
             for tank in tanks:
                 if bullet.hitbox.colliderect(tank.hitbox):
                     if (bullet.owner == 'player' and not isinstance(tank, Player_tank)) or (bullet.owner == 'enemy' and isinstance(tank, Player_tank)):
+                        if isinstance(tank, Player_tank) and tank.shield_timer > 0:
+                            if bullet in self.game_objects:
+                                self.game_objects.remove(bullet)
+                                break    
                         tank.health -= bullet.damage
                         if bullet in self.game_objects:
                             self.game_objects.remove(bullet)
                         
                         if tank.health <= 0 and tank in self.game_objects:
                             self.game_objects.remove(tank)
+                            if isinstance(tank, Enemy_tank):
+                                if random.random() < 0.20:
+                                    self.game_objects.append(PowerUp(tank.hitbox.x, tank.hitbox.y))
                             if isinstance(tank, Player_tank):
                                 print("Player tank destroyed! GAME OVER!")
                                 self.running = False
@@ -207,14 +236,24 @@ class Environment:
             self.load_level()
 
     def update(self):
+        self.spawn_enemy()
         for obj in self.game_objects[:]:
             obj.update()
-        self.spawn_enemy()
-
+            if isinstance(obj, PowerUp) and obj.lifetime <= 0:
+                self.game_objects.remove(obj)
+        
     def draw(self):
         self.screen.fill(CONST.BLACK)
         for obj in self.game_objects:
             obj.draw(self.screen)
+            if isinstance(obj, Player_tank) and obj.shield_timer > 0:
+                pygame.draw.circle(
+                    self.screen,
+                    CONST.CYAN,
+                    obj.hitbox.center,
+                    int(CONST.TANK_SIZE / 2) + 5,
+                    3
+                )
         self.draw_text()  
         pygame.display.flip()
 
