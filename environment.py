@@ -280,8 +280,6 @@ class Environment:
             
         pygame.display.flip()
 
-        pygame.display.flip()
-
     def draw_text(self):
         hud_rect = pygame.Rect(CONST.GAME_WIDTH, 0, CONST.HUD_WIDTH, CONST.WINDOW_HEIGHT)
         pygame.draw.rect(self.screen, (25, 25, 30), hud_rect)
