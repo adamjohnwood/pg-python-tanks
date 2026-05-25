@@ -31,6 +31,7 @@ class Environment:
         load_assets()
         self.running = True
         self.game_objects = []
+        self.state = 'PLAYING'
 
         self.current_level = 1
         self.spawn_timer = 0
@@ -53,6 +54,9 @@ class Environment:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            # Toggle pause
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                self.state = 'PAUSED' if self.state == 'PLAYING' else 'PLAYING'
 
     def check_collisions(self):
         bullets = [obj for obj in self.game_objects if isinstance(obj, Bullet)]
@@ -244,6 +248,7 @@ class Environment:
             self.load_level()
 
     def update(self):
+        if self.state != 'PLAYING': return
         self.spawn_enemy()
         for obj in self.game_objects[:]:
             obj.update()
@@ -263,44 +268,46 @@ class Environment:
                     3
                 )
         self.draw_text()  
+
+        if self.state == 'PAUSED':
+            overlay = pygame.Surface((CONST.GAME_WIDTH, CONST.GAME_HEIGHT))
+            overlay.set_alpha(150)
+            overlay.fill((0, 0, 0))
+            self.screen.blit(overlay, (0, 0))
+            
+            pause_txt = self.font.render('PAUSED - PRESS ESC', True, (255, 255, 255))
+            self.screen.blit(pause_txt, (CONST.GAME_WIDTH//2 - 80, CONST.GAME_HEIGHT//2))
+            
+        pygame.display.flip()
+
         pygame.display.flip()
 
     def draw_text(self):
-        hud_background = pygame.Rect(CONST.GAME_WIDTH, 0, CONST.HUD_WIDTH, CONST.WINDOW_HEIGHT)
-        pygame.draw.rect(self.screen, CONST.STEEL_COLOR, hud_background)
+        hud_rect = pygame.Rect(CONST.GAME_WIDTH, 0, CONST.HUD_WIDTH, CONST.WINDOW_HEIGHT)
+        pygame.draw.rect(self.screen, (25, 25, 30), hud_rect)
+        pygame.draw.line(self.screen, (100, 100, 100), (CONST.GAME_WIDTH, 0), (CONST.GAME_WIDTH, CONST.WINDOW_HEIGHT), 4)
 
-        pygame.draw.line(self.screen, CONST.WHITE, (CONST.GAME_WIDTH, 0), (CONST.GAME_WIDTH, CONST.WINDOW_HEIGHT), 3)
+        x_margin = CONST.GAME_WIDTH + 20
+        
+        level_txt = self.font.render(f'MISSION: {self.current_level}', True, (200, 200, 200))
+        self.screen.blit(level_txt, (x_margin, 30))
 
-        enemies_count = len([obj for obj in self.game_objects if isinstance(obj, Enemy_tank)])
-        enemies_count += len(self.enemies_pool)
+        enemies_count = len([obj for obj in self.game_objects if isinstance(obj, Enemy_tank)]) + len(self.enemies_pool)
+        enemies_txt = self.font.render(f'ENEMIES: {enemies_count}', True, (255, 100, 100))
+        self.screen.blit(enemies_txt, (x_margin, 70))
+
         player = next((obj for obj in self.game_objects if isinstance(obj, Player_tank)), None)
+        hp_label = self.font.render('HP STATUS:', True, (200, 200, 200))
+        self.screen.blit(hp_label, (x_margin, 140))
 
-        x_margin = CONST.GAME_WIDTH + 10
-
-        level_number_text = self.font.render(f'Level: {self.current_level}', True, CONST.BLACK)
-        enemies_count_text = self.font.render(f'Enemies: {enemies_count}', True, CONST.RED)
-
-        self.screen.blit(level_number_text, (x_margin, 30))
-        self.screen.blit(enemies_count_text, (x_margin, 70))
-
-        health_bar_label = self.font.render('Health:', True, CONST.WHITE)
-        self.screen.blit(health_bar_label, (x_margin, 150))
-    
         if player:
-            healthbar_width = CONST.HUD_WIDTH - 20
-            
-            hp_ratio = max(player.health, 0) / 100
-            healthbar_fill_width = int(healthbar_width * hp_ratio)
-
-            pygame.draw.rect(self.screen, CONST.WHITE, (x_margin, 180, healthbar_width, 30))
-            pygame.draw.rect(self.screen, CONST.GREEN, (x_margin, 180, healthbar_fill_width, 30))
-            pygame.draw.rect(self.screen, CONST.BLACK, (x_margin, 180, healthbar_width, 30), 3)
-
-            hp_text = self.font.render(f'{max(player.health, 0)} HP', True, CONST.BLACK)
-            self.screen.blit(hp_text, (x_margin + 5, 185))
+            hp_box = pygame.Rect(x_margin, 170, CONST.HUD_WIDTH - 40, 25)
+            pygame.draw.rect(self.screen, (200, 200, 200), hp_box, 2)
+            fill_width = int((hp_box.width - 4) * max(player.health, 0) / 100)
+            pygame.draw.rect(self.screen, (0, 255, 150), (x_margin + 2, 172, fill_width, 21))
         else:
-            health_text = self.font.render('GAME OVER!', True, CONST.WHITE)
-            self.screen.blit(health_text, (x_margin, 180))
+            game_over_txt = self.font.render('SYSTEM FAILURE', True, (255, 50, 50))
+            self.screen.blit(game_over_txt, (x_margin, 170))
 
 if __name__ == "__main__":
     env = Environment()
