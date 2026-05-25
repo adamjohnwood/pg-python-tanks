@@ -22,7 +22,7 @@ class Enemy_tank(Tank):
     def update(self):
         self.move_timer -= 1
 
-        if self.move_timer <= 0:
+        if self.move_timer <= 0 and not self.on_ice:
             self.change_direction()
 
         self.hitbox.x += self.vector[0] * self.speed

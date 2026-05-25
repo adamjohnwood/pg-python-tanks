@@ -59,6 +59,7 @@ class Environment:
         tanks = [obj for obj in self.game_objects if isinstance(obj, Tank)]
         impassable_tiles = [obj for obj in self.game_objects if isinstance(obj, (BrickWall, SteelWall, Water, Base))]
         solid_tiles = [obj for obj in self.game_objects if isinstance(obj, (BrickWall, SteelWall, Base))]
+        ice_tiles = [obj for obj in self.game_objects if isinstance(obj, Ice)]
         powerups = [obj for obj in self.game_objects if isinstance(obj, PowerUp)]
 
         # Check tanks collisions
@@ -87,6 +88,13 @@ class Environment:
                     isCollision = True
                     break
 
+            # With ice
+            tank.on_ice = False
+            for ice in ice_tiles:
+                if ice.hitbox.collidepoint(tank.hitbox.center):
+                    tank.on_ice = True
+                    break
+                
             # With other tanks
             for other_tank in tanks:
                 if tank != other_tank and tank.hitbox.colliderect(other_tank.hitbox):

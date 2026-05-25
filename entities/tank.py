@@ -19,11 +19,11 @@ class Tank(Game_object):
 
         self.speed = tank_data["speed"]
         self.health = tank_data["health"]
-        self.shield_timer = 0
         self.damage = tank_data["damage"]
         self.shoot_cooldown = tank_data["cooldown"]
         self.shoot_cooldown_timer = 0
         self.vector = CONST.UP
+        self.on_ice = False
 
     def update(self):
         pass

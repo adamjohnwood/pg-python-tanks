@@ -85,4 +85,4 @@ LEVEL_3 = {
 
 ALL_LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3]
 
-# ALL_LEVELS = [LEVEL_3] # for tests only
+ALL_LEVELS = [LEVEL_3] # for tests only
